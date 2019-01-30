@@ -62,13 +62,13 @@
 		<div class="column verbNeg" v-if="currentStep === 'verbNeg'">
 			<div class="has-text-centered title">Насколько с помощью глагола «<mark>{{data.raw_verb}}</mark>» выражено негативное (либо позитивное) отношение к этнической группе / этническому персонажу</div>
 			<div class="buttons are-large is-centered has-addons">
-				<div class="button is-large" @click="setVerbNeg(-3)">-3</div>
-				<div class="button is-large" @click="setVerbNeg(-2)">-2</div>
-				<div class="button is-large" @click="setVerbNeg(-1)">-1</div>
-				<div class="button is-large" @click="setVerbNeg(0)">0</div>
-				<div class="button is-large" @click="setVerbNeg(1)">1</div>
-				<div class="button is-large" @click="setVerbNeg(2)">2</div>
-				<div class="button is-large" @click="setVerbNeg(3)">3</div>
+				<div class="button is-large" @click="setVerbNeg(1)">-3</div>
+				<div class="button is-large" @click="setVerbNeg(2)">-2</div>
+				<div class="button is-large" @click="setVerbNeg(3)">-1</div>
+				<div class="button is-large" @click="setVerbNeg(4)">0</div>
+				<div class="button is-large" @click="setVerbNeg(5)">1</div>
+				<div class="button is-large" @click="setVerbNeg(6)">2</div>
+				<div class="button is-large" @click="setVerbNeg(7)">3</div>
 			</div>
 		</div>
 	</div>
@@ -112,13 +112,13 @@
 			<div class="has-text-centered title">Выражено ли в тексте отрицательное (или положительное) отношение к исследуемой этнической группе / персонажу с помощью других средств (не кодируемого глагола)?</div>
 
 			<div class="buttons are-large is-centered has-addons">
-				<div class="button is-large" @click="setTextNeg(-3)">-3</div>
-				<div class="button is-large" @click="setTextNeg(-2)">-2</div>
-				<div class="button is-large" @click="setTextNeg(-1)">-1</div>
-				<div class="button is-large" @click="setTextNeg(0)">0</div>
-				<div class="button is-large" @click="setTextNeg(1)">1</div>
-				<div class="button is-large" @click="setTextNeg(2)">2</div>
-				<div class="button is-large" @click="setTextNeg(3)">3</div>
+				<div class="button is-large" @click="setTextNeg(1)">-3</div>
+				<div class="button is-large" @click="setTextNeg(2)">-2</div>
+				<div class="button is-large" @click="setTextNeg(3)">-1</div>
+				<div class="button is-large" @click="setTextNeg(4)">0</div>
+				<div class="button is-large" @click="setTextNeg(5)">1</div>
+				<div class="button is-large" @click="setTextNeg(6)">2</div>
+				<div class="button is-large" @click="setTextNeg(7)">3</div>
 			</div>
 		</div>
 	</div>

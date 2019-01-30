@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.0807efc19580b981ed369fad3fd443b5.js"
+  "/precache-manifest.fa59ed00ccceea5e1a6d144163e37da1.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "labeling-vue"});

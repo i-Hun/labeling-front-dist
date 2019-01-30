@@ -23,7 +23,7 @@ export default {
 	},
 	mounted () {
 		axios
-			.get('http://ihun.pythonanywhere.com/api/texts')
+			.get('https://ihun.pythonanywhere.com/api/texts')
 			.then(response => {
 				this.data = response.data
 			})

@@ -200,7 +200,7 @@ export default {
 			const name = localStorage.getItem('name');
 			this.name = name;
 			axios
-				.get('http://ihun.pythonanywhere.com/api/text', {params: {name: name}})
+				.get('https://ihun.pythonanywhere.com/api/text', {params: {name: name}})
 				.then(response => {
 					this.textsLabeled = response.data.textsLabeled
 					this.data = response.data.texts;
@@ -230,7 +230,7 @@ export default {
 
 			console.log("Отправляются на сервер", toServerData);
 
-			axios.post('http://ihun.pythonanywhere.com/api/label', toServerData)
+			axios.post('https://ihun.pythonanywhere.com/api/label', toServerData)
 
 			this.branch = new Set();
 			this.data = {};

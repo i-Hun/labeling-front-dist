@@ -2,7 +2,7 @@
 	<div>
 	<div class="labeling" v-if="textsLabeled <=100">
 		<div class="personal-info">
-			Имя: <span class="name">{{name}}</span>. <span v-if="textsLabeled">Закодировано текстов: {{textsLabeled}}/100</span>. Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>».
+			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}/100.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>».
 		</div>
 		<hr>
 	<div class="columns">
@@ -51,9 +51,9 @@
 		<div class="column isRelated">
 			<div class="has-text-centered title">Связаны ли слова «<mark>{{data.raw_verb}}</mark>» и «<mark class="verb">{{data.eth_raw}}</mark>» синтаксической/смысловой связью?</div>
 			<div class="buttons are-large is-centered has-addons">
-				<div class="button is-large" @click="isRelated = 'Субъект'">Да</div>
-				<div class="button is-large" @click="isRelated = 'Объект'">Нет</div>
-				<div class="button is-large" @click="isRelated = 'Нет'">Нет связи</div>
+				<div class="button is-large" @click="isRelated = 'Да'">Да</div>
+				<div class="button is-large" @click="isRelated = 'Нет'">Нет</div>
+				<div class="button is-large" @click="isRelated = 'Нет связи'">Нет связи</div>
 				<div class="button is-large" @click="isRelated = 'Не понятно'">Не понятно</div>
 			</div>
 		</div>
@@ -242,6 +242,7 @@ export default {
 			this.verbNegContext = "";
 			this.textNeg = "";
 			this.context = "";
+			this.ownContext = "";
 		},
 	},
 	watch: {
@@ -281,31 +282,49 @@ export default {
 		},
 		isEthnonym: function(val, oldVal) {
 			console.warn("isEthnonym", this.currentStep, this.branch, val);
-			if (this.branch.has("isEthnonym")) {
+			if ((this.isClear === "Да") && (this.isVerb === "Нет" || this.isVerb === "Не понятно")) {
+				if (val === "Да") {
+					console.log("Слово — этноним, идём дальше");
+					this.branch = new Set(["textNeg"]);
+					this.currentStep = this.branch.values().next().value;
+					this.branch.delete("isEthnonym");
+				} 
+				if (val === "Нет" || val === "Не понятно") {
+					this.branch = new Set([]);
+					this.currentStep = this.branch.values().next().value;
+					this.branch.delete("isEthnonym");
+				}
+			} else {
 				if (val === "Да") {
 					console.log("Слово — этноним, идём дальше");
 					this.branch.delete("isEthnonym");
 					this.currentStep = this.branch.values().next().value;
+					this.branch.delete("isEthnonym");
 				}
 
 				if (val === "Нет" || val === "Не понятно") {
 					console.log("Если Ethn?=N or U, далее заполнить только поля verbNegContext, context");
 					this.branch = new Set(["verbNegContext", "context"]);
 					this.currentStep = this.branch.values().next().value;
+					this.branch.delete("isEthnonym");
 				}
 			}
-
-			this.branch.delete("isEthnonym");
 		},
 		isRelated: function(val, oldVal) {
 			console.warn("isRelated", this.currentStep, this.branch, val);
-			if (val) {
-				if ((val === "Нет") || (val === "Не понятно")) {
-					console.log("Если Related?=N or U, далее заполнить только поля verbNegContext? , context и textNeg?");
-					this.branch = new Set(["verbNegContext", "context", "textNeg"]);
-				}
-				this.branch.delete("isRelated");
+			if (this.isVerb === "Да" && this.isEthnonym === "Да" && (val === "Нет" || val === "Не понятно" || val === "Нет связи")) {
+				console.log("!!!")
+				this.branch = new Set(["verbNegContext", "textNeg"]);
 				this.currentStep = this.branch.values().next().value;
+			} else {
+				if (val) {
+					if ((val === "Нет") || (val === "Не понятно")) {
+						console.log("Если Related?=N or U, далее заполнить только поля verbNegContext , context и textNeg");
+						this.branch = new Set(["verbNegContext", "context", "textNeg"]);
+					}
+					this.branch.delete("isRelated");
+					this.currentStep = this.branch.values().next().value;
+				}
 			}
 		},
 		verbNeg: function(val, oldVal) {
@@ -317,16 +336,64 @@ export default {
 		},
 		verbNegContext: function(val, oldVal) {
 			console.warn("verbNegContext", this.currentStep, this.branch, val);
-			if (val) {
-				this.branch.delete("verbNegContext");
+			if (this.isClear === "Да" && this.isVerb === "Да" && this.isEthnonym === "Да" && (this.isRelated === "Нет" || this.isRelated === "Не понятно" || this.isRelated === "Нет связи") && 
+				val === "Да") {
+				console.log("!!!")
+				this.branch = new Set(["context", "textNeg"]);
 				this.currentStep = this.branch.values().next().value;
+			} 
+
+			if (this.isClear === "Да" && this.isVerb === "Да" && this.isEthnonym === "Да" && this.isRelated === "Да" && 
+				(val === "Нет" || val === "Не понятно")) {
+				this.branch = new Set(["textNeg"]);
+				this.currentStep = this.branch.values().next().value;
+			} 
+			if (this.isClear === "Нет" && this.isVerb === "Да") {
+				console.log("!")
+				if  (val === "Нет" || val === "Не понятно") {
+					console.log("!!")
+					this.branch = new Set([]);
+					this.currentStep = this.branch.values().next().value;
+				}
+
+				if  (val === "Да") {
+					console.log("!!!")
+					this.branch = new Set(["context"]);
+					this.currentStep = this.branch.values().next().value;
+				}
+
+
 			}
+			if (this.isVerb === "Да" && (this.isEthnonym === "Нет" || this.isEthnonym === "Не понятно") 
+				&& (this.verbNegContext === "Нет" || this.verbNegContext === "Не понятно")) {
+				this.branch = new Set(["textNeg"]);
+				this.currentStep = this.branch.values().next().value;
+			} else {
+				if ((this.isClear === "Нет" && (this.isVerb === "Да"))) {
+					if  (val === "Нет" || val === "Не понятно") {
+						this.branch = new Set([]);
+						this.currentStep = this.branch.values().next().value;
+					}
+
+				} else {
+					if (val) {
+						this.branch.delete("verbNegContext");
+						this.currentStep = this.branch.values().next().value;
+					}
+				}
+			}
+
 		},
 		context: function(val, oldVal) {
 			console.warn("context", this.currentStep, this.branch, val);
-			if (val) {
-				this.branch.delete("context");
-				this.currentStep = this.branch.values().next().value;
+			if (this.isVerb === "Да" && (this.isEthnonym === "Нет" || this.isEthnonym === "Не понятно") && (this.verbNegContext === "Да")) {
+					this.branch = new Set(["textNeg"]);
+					this.currentStep = this.branch.values().next().value;	
+			} else {
+				if (val) {
+					this.branch.delete("context");
+					this.currentStep = this.branch.values().next().value;
+				}
 			}
 		},
 		textNeg: function(val, oldVal) {

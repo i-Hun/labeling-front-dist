@@ -2,7 +2,7 @@
 	<div>
 	<div class="labeling" v-if="textsLabeled <=100">
 		<div class="personal-info">
-			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}/100.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>».
+			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}/100.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>». ID текста: {{data.document_id}}.
 		</div>
 		<hr>
 	<div class="columns">
@@ -53,7 +53,6 @@
 			<div class="buttons are-large is-centered has-addons">
 				<div class="button is-large" @click="isRelated = 'Да'">Да</div>
 				<div class="button is-large" @click="isRelated = 'Нет'">Нет</div>
-				<div class="button is-large" @click="isRelated = 'Нет связи'">Нет связи</div>
 				<div class="button is-large" @click="isRelated = 'Не понятно'">Не понятно</div>
 			</div>
 		</div>
@@ -62,14 +61,14 @@
 		<div class="column verbNeg" v-if="currentStep === 'verbNeg'">
 			<div class="has-text-centered title">Насколько с помощью глагола «<mark>{{data.raw_verb}}</mark>» выражено негативное (либо позитивное) отношение к этнической группе / этническому персонажу</div>
 			<div class="buttons are-large is-centered has-addons">
-				<div class="button is-large" @click="setVerbNeg(1)">-3</div>
-				<div class="button is-large" @click="setVerbNeg(2)">-2</div>
-				<div class="button is-large" @click="setVerbNeg(3)">-1</div>
-				<div class="button is-large" @click="setVerbNeg(4)">0</div>
-				<div class="button is-large" @click="setVerbNeg(5)">1</div>
-				<div class="button is-large" @click="setVerbNeg(6)">2</div>
-				<div class="button is-large" @click="setVerbNeg(7)">3</div>
+				<div class="button is-large" @click="setVerbNeg(1)">-2</div>
+				<div class="button is-large" @click="setVerbNeg(2)">-1</div>
+				<div class="button is-large" @click="setVerbNeg(3)">0</div>
+				<div class="button is-large" @click="setVerbNeg(4)">1</div>
+				<div class="button is-large" @click="setVerbNeg(5)">2</div>
 			</div>
+			<textarea class="textarea" placeholder="Окно для ввода словосочетания на случай, если глагол выражает отношение к этнониму, будучи в составе словосочетания" v-model="verbNegOwn"></textarea>
+
 		</div>
 	</div>
 	<div class="columns" v-if="currentStep === 'verbNegContext'">
@@ -112,17 +111,23 @@
 			<div class="has-text-centered title">Выражено ли в тексте отрицательное (или положительное) отношение к исследуемой этнической группе / персонажу с помощью других средств (не кодируемого глагола)?</div>
 
 			<div class="buttons are-large is-centered has-addons">
-				<div class="button is-large" @click="setTextNeg(1)">-3</div>
-				<div class="button is-large" @click="setTextNeg(2)">-2</div>
-				<div class="button is-large" @click="setTextNeg(3)">-1</div>
-				<div class="button is-large" @click="setTextNeg(4)">0</div>
-				<div class="button is-large" @click="setTextNeg(5)">1</div>
-				<div class="button is-large" @click="setTextNeg(6)">2</div>
-				<div class="button is-large" @click="setTextNeg(7)">3</div>
+				<div class="button is-large" @click="setTextNeg(1)">-2</div>
+				<div class="button is-large" @click="setTextNeg(2)">-1</div>
+				<div class="button is-large" @click="setTextNeg(3)">0</div>
+				<div class="button is-large" @click="setTextNeg(4)">1</div>
+				<div class="button is-large" @click="setTextNeg(5)">2</div>
 			</div>
 		</div>
 	</div>
+	<div class="columns" v-if="currentStep === undefined">
+		<div class="column final">
+			<div class="has-text-centered title">Текст размечен</div>
 
+			<div class="buttons are-large is-centered has-addons">
+				<div class="button is-large" @click="sendData()">Отправить данные</div>
+			</div>
+		</div>
+	</div>
 	</div>
 	<div v-else>
 		<h1 class="title is-1">
@@ -177,6 +182,7 @@ export default {
 			textNeg: "",
 			context: "",
 			ownContext: "",
+			verbNegOwn: "",
 			currentStep: "isClear",
 			branch: new Set(),
 		}
@@ -225,7 +231,8 @@ export default {
 				verbNeg: this.verbNeg,
 				verbNegContext: this.verbNegContext,
 				textNeg: this.textNeg,
-				context: this.context
+				context: this.context,
+				verbNegOwn: this.verbNegOwn
 			}
 
 			console.log("Отправляются на сервер", toServerData);
@@ -243,7 +250,12 @@ export default {
 			this.textNeg = "";
 			this.context = "";
 			this.ownContext = "";
+			this.verbNegOwn = "";
 		},
+		sendData() {
+			this.postText();
+			this.getText();
+		}
 	},
 	watch: {
 		isClear: function(val, oldVal) {
@@ -312,7 +324,7 @@ export default {
 		},
 		isRelated: function(val, oldVal) {
 			console.warn("isRelated", this.currentStep, this.branch, val);
-			if (this.isVerb === "Да" && this.isEthnonym === "Да" && (val === "Нет" || val === "Не понятно" || val === "Нет связи")) {
+			if (this.isVerb === "Да" && this.isEthnonym === "Да" && (val === "Нет" || val === "Не понятно")) {
 				console.log("!!!")
 				this.branch = new Set(["verbNegContext", "textNeg"]);
 				this.currentStep = this.branch.values().next().value;
@@ -336,7 +348,7 @@ export default {
 		},
 		verbNegContext: function(val, oldVal) {
 			console.warn("verbNegContext", this.currentStep, this.branch, val);
-			if (this.isClear === "Да" && this.isVerb === "Да" && this.isEthnonym === "Да" && (this.isRelated === "Нет" || this.isRelated === "Не понятно" || this.isRelated === "Нет связи") && 
+			if (this.isClear === "Да" && this.isVerb === "Да" && this.isEthnonym === "Да" && (this.isRelated === "Нет" || this.isRelated === "Не понятно") && 
 				val === "Да") {
 				console.log("!!!")
 				this.branch = new Set(["context", "textNeg"]);
@@ -414,8 +426,6 @@ export default {
 			console.log("currentStep", val, oldVal);
 			if (val === undefined) {
 				console.log("Кодирование закончено currentStep");
-				this.postText();
-				this.getText();
 			}
 		},
 	}

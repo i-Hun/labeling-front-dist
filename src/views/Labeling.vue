@@ -59,7 +59,7 @@
 	</div>
 	<div class="columns">
 		<div class="column verbNeg" v-if="currentStep === 'verbNeg'">
-			<div class="has-text-centered title">Насколько с помощью глагола «<mark>{{data.raw_verb}}</mark>» выражено негативное (либо позитивное) отношение к этнической группе / этническому персонажу</div>
+			<div class="has-text-centered title">Насколько с помощью глагола «<mark>{{data.raw_verb}}</mark>» выражено негативное (либо позитивное) отношение к этнической группе / этническому персонажу?</div>
 			<div class="buttons are-large is-centered has-addons">
 				<div class="button is-large" @click="setVerbNeg(1)">-2</div>
 				<div class="button is-large" @click="setVerbNeg(2)">-1</div>
@@ -122,8 +122,34 @@
 	<div class="columns" v-if="currentStep === undefined">
 		<div class="column final">
 			<div class="has-text-centered title">Текст размечен</div>
-
-			<div class="buttons are-large is-centered has-addons">
+			<p>Ваши ответы:</p>
+			<ul>
+				<li v-if="isClear">
+					Понятен ли текст? <strong>{{isClear}}</strong>
+				</li>
+				<li v-if="isVerb">Является ли слово «<mark class="verb">{{data.raw_verb}}</mark>» глаголом? <strong>{{isVerb}}</strong>
+				</li>
+				<li v-if="isEthnonym">
+					Является ли слово «<mark>{{data.eth_raw}}</mark>» этнонимом? <strong>{{isEthnonym}}</strong>
+				</li>
+				<li v-if="isRelated">
+					Связаны ли слова «<mark>{{data.raw_verb}}</mark>» и «<mark class="verb">{{data.eth_raw}}</mark>» синтаксической/смысловой связью? <strong>{{isRelated}}</strong>
+				</li>
+				<li v-if="verbNeg">
+					Насколько с помощью глагола «<mark>{{data.raw_verb}}</mark>» выражено негативное (либо позитивное) отношение к этнической группе / этническому персонажу? <strong>{{verbNeg - 3}}</strong>
+				</li>
+				<li v-if="verbNegContext">
+					Может ли глагол «<mark class="verb">{{data.raw_verb}}</mark>» в другом контексте выражать негативное отношение к этнической группе? <strong>{{verbNegContext}}</strong>
+				</li>
+				<li v-if="context">
+					Постарайтесь, пожалуйста, своими словами указать контекст употребления исследуемых слов. <strong>{{context}}</strong>
+				</li>
+				<li v-if="textNeg">
+					Выражено ли в тексте отрицательное (или положительное) отношение к исследуемой этнической группе / персонажу с помощью других средств (не кодируемого глагола)? <strong>{{textNeg - 3}}</strong>
+				</li>
+			</ul>
+			<div class="buttons has-addons is-centered are-large">
+				<div class="button is-large" @click="resetSteps()">Ответить заново</div>
 				<div class="button is-large" @click="sendData()">Отправить данные</div>
 			</div>
 		</div>
@@ -185,6 +211,7 @@ export default {
 			verbNegOwn: "",
 			currentStep: "isClear",
 			branch: new Set(),
+			passedPath: []
 		}
 	},
 	mounted () {
@@ -255,6 +282,20 @@ export default {
 		sendData() {
 			this.postText();
 			this.getText();
+		},
+		resetSteps () {
+			this.isClear = "";
+			this.isVerb = "";
+			this.isEthnonym = "";
+			this.isRelated = "";
+			this.verbNeg = "";
+			this.verbNegContext = "";
+			this.textNeg = "";
+			this.context = "";
+			this.ownContext = "";
+			this.verbNegOwn = "";
+			this.branch = new Set(path);
+			this.currentStep = this.branch.values().next().value;
 		}
 	},
 	watch: {

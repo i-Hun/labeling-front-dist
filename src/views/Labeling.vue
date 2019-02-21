@@ -1,6 +1,6 @@
 <template>
 	<div>
-	<div class="labeling" v-if="data">
+	<div class="labeling" v-if="data || textsLabeled >= textsRemained">
 		<div class="personal-info">
 			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}. Осталось текстов: {{textsRemained}}.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>». ID текста: {{data.document_id}}.
 		</div>

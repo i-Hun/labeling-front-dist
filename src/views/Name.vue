@@ -13,6 +13,13 @@
 			</button>
 		</p>
 	</div>
+<footer class="footer">
+  <div class="content has-text-centered">
+    <p>
+      v1.3
+    </p>
+  </div>
+</footer>
 	</div>
 </template>
 

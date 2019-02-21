@@ -1,8 +1,8 @@
 <template>
 	<div>
-	<div class="labeling" v-if="textsLabeled <=100">
+	<div class="labeling" v-if="data">
 		<div class="personal-info">
-			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}/100.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>». ID текста: {{data.document_id}}.
+			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}. Осталось текстов: {{textsRemained}}.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>». ID текста: {{data.document_id}}.
 		</div>
 		<hr>
 	<div class="columns">
@@ -189,7 +189,8 @@
 // @ is an alias to /src
 import axios from 'axios';
 
-
+// const domain = "https://ihun.pythonanywhere.com";
+const domain = "http://localhost:8080";
 const path = ["isClear", "isVerb", "isEthnonym", "isRelated", "verbNeg", "verbNegContext", "context", "textNeg"];
 
 export default {
@@ -199,6 +200,7 @@ export default {
 			data: {},
 			name: '',
 			textsLabeled: 0,
+			textsRemained: 0,
 			isClear: "",
 			isVerb: "",
 			isEthnonym: "",
@@ -233,9 +235,10 @@ export default {
 			const name = localStorage.getItem('name');
 			this.name = name;
 			axios
-				.get('https://ihun.pythonanywhere.com/api/text', {params: {name: name}})
+				.get(domain + '/api/text', {params: {name: name}})
 				.then(response => {
-					this.textsLabeled = response.data.textsLabeled
+					this.textsLabeled = response.data.textsLabeled;
+					this.textsRemained = response.data.textsRemained;
 					this.data = response.data.texts;
 
 					this.data.source_text = this.data.source_text.replace(this.data.eth_raw, `<mark>${this.data.eth_raw}</mark>`);
@@ -264,7 +267,17 @@ export default {
 
 			console.log("Отправляются на сервер", toServerData);
 
-			axios.post('https://ihun.pythonanywhere.com/api/label', toServerData)
+			axios.post(domain + '/api/label', toServerData)
+				.then(response => {
+					console.log("post", response.data)
+					this.textsLabeled = response.data.textsLabeled;
+					this.textsRemained = response.data.textsRemained;
+					if (response.data.textsLabeled < response.data.textsRemained) {
+						this.getText();
+					} else {
+						console.log("Закончили разметку")
+					}
+				});
 
 			this.branch = new Set();
 			this.data = {};
@@ -281,7 +294,6 @@ export default {
 		},
 		sendData() {
 			this.postText();
-			this.getText();
 		},
 		resetSteps () {
 			this.isClear = "";

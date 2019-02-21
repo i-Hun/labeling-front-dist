@@ -16,7 +16,7 @@
 <footer class="footer">
   <div class="content has-text-centered">
     <p>
-      v1.3
+      v1.4
     </p>
   </div>
 </footer>

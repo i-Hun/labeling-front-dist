@@ -189,8 +189,8 @@
 // @ is an alias to /src
 import axios from 'axios';
 
-// const domain = "https://ihun.pythonanywhere.com";
-const domain = "http://localhost:8080";
+const domain = "https://ihun.pythonanywhere.com";
+// const domain = "http://localhost:8080";
 const path = ["isClear", "isVerb", "isEthnonym", "isRelated", "verbNeg", "verbNegContext", "context", "textNeg"];
 
 export default {

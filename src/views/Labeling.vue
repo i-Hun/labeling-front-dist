@@ -265,6 +265,15 @@ export default {
 				verbNegOwn: this.verbNegOwn
 			}
 
+			if (!toServerData.textId) {
+				alert("Не указан ID текста");
+				throw "Не указан ID текста";
+			}
+			if (!toServerData.name) {
+				alert("Не указано имя");
+				throw "Не указано имя";
+			}
+
 			console.log("Отправляются на сервер", toServerData);
 
 			axios.post(domain + '/api/label', toServerData)

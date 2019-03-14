@@ -16,7 +16,7 @@
 <footer class="footer">
   <div class="content has-text-centered">
     <p>
-      v1.6
+      v1.10
     </p>
   </div>
 </footer>
@@ -35,7 +35,7 @@ export default {
 	},
 	methods: {
 		startLabeling () {
-			localStorage.setItem('name', this.name);
+			localStorage.setItem('name', this.name.trim());
 			this.$router.push({ path: 'labeling' });
 		}
 	}

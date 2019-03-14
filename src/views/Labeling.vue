@@ -1,8 +1,8 @@
 <template>
 	<div>
-	<div class="labeling" v-if="data || textsRemained">
+	<div class="labeling" v-if="data">
 		<div class="personal-info">
-			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}. Осталось текстов: {{textsRemained}}.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>». ID текста: {{data.document_id}}.
+			Имя: <span class="name">{{name}}</span>. <span>Закодировано текстов: {{textsLabeled}}.</span> Этноним: «<mark>{{data.eth_raw}}</mark>». Глагол: «<mark class="verb">{{data.raw_verb}}</mark>». ID текста: {{data.document_id}}.
 		</div>
 		<hr>
 	<div class="columns">
@@ -51,7 +51,8 @@
 		<div class="column isRelated">
 			<div class="has-text-centered title">Связаны ли слова «<mark>{{data.raw_verb}}</mark>» и «<mark class="verb">{{data.eth_raw}}</mark>» синтаксической/смысловой связью?</div>
 			<div class="buttons are-large is-centered has-addons">
-				<div class="button is-large" @click="isRelated = 'Да'">Да</div>
+				<div class="button is-large" @click="isRelated = 'S'">Да, этническая группа — субъект</div>
+				<div class="button is-large" @click="isRelated = 'O'">Да, этническая группа — объект</div>
 				<div class="button is-large" @click="isRelated = 'Нет'">Нет</div>
 				<div class="button is-large" @click="isRelated = 'Не понятно'">Не понятно</div>
 			</div>
@@ -59,7 +60,7 @@
 	</div>
 	<div class="columns">
 		<div class="column verbNeg" v-if="currentStep === 'verbNeg'">
-			<div class="has-text-centered title">Насколько с помощью глагола «<mark>{{data.raw_verb}}</mark>» выражено негативное (либо позитивное) отношение к этнической группе / этническому персонажу?</div>
+			<div class="has-text-centered title">Оцените по пятибалльной шкале отношение автора к этнической группе / этническому персонажу, выраженное с помощью глагола «<mark>{{data.raw_verb}}</mark>» (-2 — сильно негативное, 2 — сильно позитивное).</div>
 			<div class="buttons are-large is-centered has-addons">
 				<div class="button is-large" @click="setVerbNeg(1)">-2</div>
 				<div class="button is-large" @click="setVerbNeg(2)">-1</div>
@@ -83,15 +84,15 @@
 	</div>
 	<div class="columns" v-if="currentStep === 'context'">
 		<div class="column context">
-			<div class="has-text-centered title">Постарайтесь, пожалуйста, своими словами указать контекст употребления исследуемых слов.</div>
+			<div class="has-text-centered title">Укажите, в каком контексте глагол «<mark class="verb">{{data.raw_verb}}</mark>» может выражать негативное отношение к этническому персонажу / этнической группе.</div>
 			<div class="columns">
 				<div class="column box" @click="context = 'S'">
-					S – subject (если в тексте глагол связан с этнической группой с помощью связи О)
+					S — этноним-субъект («понаехали азиаты всякие»).
 				</div>
 				<div class="column box" @click="context = 'O1'">
-					О1 – object + глагол в 1 лице. Например: «Чеченцы ненавидят русских» может не выражать отрицательного отношения к русским, так как чеченцы могут осуждаться. Но «я ненавижу русских» однозначно выражает негативное отношение к русским. 
+					О1 – глагол в 1 лице + этноним-объект («ненавижу русских»).
 				</div>
-				<div class="column box" @click="context = 'ОI'">ОI  - object  + глагол в императиве или сходных по смыслу формах.  Например, «Депортировали не только чеченцев и не только во время войны» может не выражать негативного отношения к чеченцам, так как депортация может осуждаться. Однако негативное отношение к чеченцами выражают призывы к депортации: «Депортируйте уже всех чеченцев», «Надо снова депортировать чеченцев», «Давайте депортируем…», «Как хочется депортировать...» и т.д.</div>
+				<div class="column box" @click="context = 'ОI'">ОI - глагол в императиве или сходных по смыслу формах + этноним-объект («надо снова депортировать чеченцев»)</div>
 
 				<div class="column">
 					<div class="field">
@@ -108,7 +109,7 @@
 	</div>
 	<div class="columns" v-if="currentStep === 'textNeg'">
 		<div class="column textNeg">
-			<div class="has-text-centered title">Выражено ли в тексте отрицательное (или положительное) отношение к исследуемой этнической группе / персонажу с помощью других средств (не кодируемого глагола)?</div>
+			<div class="has-text-centered title">Оцените по пятибалльной шкале отношение автора к этнической группе / этническому персонажу, выраженное с помощью других средств (не кодируемого глагола), если оно есть? (-2 — сильно негативное, 2 — сильно позитивное)</div>
 
 			<div class="buttons are-large is-centered has-addons">
 				<div class="button is-large" @click="setTextNeg(1)">-2</div>
@@ -200,7 +201,7 @@ export default {
 			data: {},
 			name: '',
 			textsLabeled: 0,
-			textsRemained: 0,
+			// textsRemained: 0,
 			isClear: "",
 			isVerb: "",
 			isEthnonym: "",
@@ -213,7 +214,8 @@ export default {
 			verbNegOwn: "",
 			currentStep: "isClear",
 			branch: new Set(),
-			passedPath: []
+			passedPath: [],
+			timer: new Date()
 		}
 	},
 	mounted () {
@@ -238,7 +240,7 @@ export default {
 				.get(domain + '/api/text', {params: {name: name}})
 				.then(response => {
 					this.textsLabeled = response.data.textsLabeled;
-					this.textsRemained = response.data.textsRemained;
+					// this.textsRemained = response.data.textsRemained;
 					this.data = response.data.texts;
 
 					this.data.source_text = this.data.source_text.replace(this.data.eth_raw, `<mark>${this.data.eth_raw}</mark>`);
@@ -247,6 +249,7 @@ export default {
 			this.branch = new Set(path);
 			console.log("getText branch", this.branch.values().next().value, path)
 			this.currentStep = this.branch.values().next().value;
+			this.timer = new Date();
 		},
 		postText () {
 			const toServerData = {
@@ -262,7 +265,8 @@ export default {
 				verbNegContext: this.verbNegContext,
 				textNeg: this.textNeg,
 				context: this.context,
-				verbNegOwn: this.verbNegOwn
+				verbNegOwn: this.verbNegOwn,
+				timer: new Date() - this.timer
 			}
 
 			if (!toServerData.textId) {
@@ -280,12 +284,7 @@ export default {
 				.then(response => {
 					console.log("post", response.data)
 					this.textsLabeled = response.data.textsLabeled;
-					this.textsRemained = response.data.textsRemained;
-					if (response.data.textsRemained) {
-						this.getText();
-					} else {
-						console.log("Закончили разметку")
-					}
+					this.getText();
 				});
 
 			this.branch = new Set();
@@ -387,7 +386,6 @@ export default {
 		isRelated: function(val, oldVal) {
 			console.warn("isRelated", this.currentStep, this.branch, val);
 			if (this.isVerb === "Да" && this.isEthnonym === "Да" && (val === "Нет" || val === "Не понятно")) {
-				console.log("!!!")
 				this.branch = new Set(["verbNegContext", "textNeg"]);
 				this.currentStep = this.branch.values().next().value;
 			} else {
@@ -417,7 +415,7 @@ export default {
 				this.currentStep = this.branch.values().next().value;
 			} 
 
-			if (this.isClear === "Да" && this.isVerb === "Да" && this.isEthnonym === "Да" && this.isRelated === "Да" && 
+			if (this.isClear === "Да" && this.isVerb === "Да" && this.isEthnonym === "Да" && (this.isRelated === "S" || this.isRelated === "O") && 
 				(val === "Нет" || val === "Не понятно")) {
 				this.branch = new Set(["textNeg"]);
 				this.currentStep = this.branch.values().next().value;
